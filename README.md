@@ -1,32 +1,10 @@
-# [INSERT quickstart title here]
+# Translate speech across 100+ languages with AI
 
-> **CONTRIBUTOR TODO: update title**
->
-> Replace the H1 title above with your quickstart title
->
-> **TITLE requirements:**
-> - MAX CHAR: 64
-> - Industry use case, e.g.: "Protect patient data with LLM guardrails"
->
-> _TITLE will be extracted for publication._
+Break language barriers with real-time speech translation using open-source AI models deployed on Red Hat OpenShift AI®.
 
-[Add your short description here - max 160 characters]
-
-> **CONTRIBUTOR TODO: short description**
->
-> Add a SHORT DESCRIPTION of your use case between H1 title and the Table of Contents
->
-> **SHORT DESCRIPTION requirements:**
-> - MAX CHAR: 160
-> - Describe the INDUSTRY use case
->
-> _SHORT DESCRIPTION will be extracted for publication._
+![Universal Translator UI showing language selection, recording interface, and translation display](docs/images/universal-translator.png)
 
 ## Table of Contents
-
-> **CONTRIBUTOR TODO: update table of contents links**
->
-> This section is recommended for better navigation. The links below are examples - update them to match your actual README sections.
 
 - [Overview](#overview)
 - [Detailed description](#detailed-description)
@@ -48,389 +26,329 @@
 
 ## Overview
 
-> **CONTRIBUTOR TODO: add overview**
->
-> Write 2-4 sentences that give a high-level summary of what this quickstart does.
->
-> **Focus on:**
-> - What problem does this solve?
-> - Who is this for? (e.g., "Healthcare providers managing patient data")
-> - What will users be able to do after deploying this?
->
-> Keep it non-technical - save technical details for later sections.
+The Universal Translator demonstrates speech translation across 100+ languages using open-source models. Users speak or type in one language and receive translations, enabling real-time communication across language barriers without requiring external APIs or cloud services. 
 
 ## Detailed description
 
-> **CONTRIBUTOR TODO: add detailed description**
->
-> Write 2-3 paragraphs that expand on the overview.
->
-> **Include:**
-> - The business/industry problem in more detail
-> - How this quickstart addresses that problem
-> - Key features or capabilities users will gain
-> - Real-world scenarios where this would be used
->
-> This is about the USE CASE, not the technology. Don't explain how it works technically yet.
->
-> **Example:** "In healthcare settings, clinicians often need to quickly access patient information while ensuring HIPAA compliance. This quickstart demonstrates how AI can summarize patient records while maintaining strict data privacy through guardrails..."
+In global organizations, educational institutions, and customer service environments, language barriers create significant communication challenges. Teams need to collaborate across languages, support multilingual customers, and enable real-time translation without sending sensitive data to external services.
 
+This quickstart deploys a complete speech translation pipeline using state-of-the-art open-source AI models. It combines OpenAI's Whisper for speech recognition with Meta's M2M-100 for translation, supporting over 100 languages. The entire stack runs self-hosted on OpenShift AI , ensuring data privacy and compliance.
+
+Key features include:
+- Real-time speech-to-text transcription in 99+ languages
+- Text input alternative for accessibility
+- Web interface with audio waveform visualization
+- Fully containerized deployment via Helm
+- 100% open-source stack (MIT/Apache 2.0 licenses)
 
 ### See it in action
 
-> **CONTRIBUTOR TODO: add demo links**
->
-> This section is RECOMMENDED but optional.
->
-> **Add links to:**
-> - Arcade interactive demos (preferred)
-> - YouTube/video walkthroughs
-> - Live demo instances (if available)
->
-> This helps users see the value before deploying. Many users don't have immediate access to deployment environments, so demos are crucial.
->
-> **Example:**
-> - [Try the interactive demo](https://arcade.example.com/your-demo)
-> - [Watch the 3-minute walkthrough](https://youtube.com/example)
+[Demo video and interactive walkthrough coming soon]
 
 ### Architecture diagrams
 
-> **CONTRIBUTOR TODO: add architecture diagram**
->
-> This section is REQUIRED.
->
-> **Include:**
-> - A clear architecture diagram showing components and data flow
-> - Put image files in `docs/images/` folder
-> - Use descriptive filenames (e.g., `architecture-overview.png`)
-> - Add alt text for accessibility
->
-> **Example:**
-> ```
-> ![Architecture diagram showing data flow from user input through LLM to output](docs/images/architecture-overview.png)
-> ```
->
-> Optionally add a brief explanation of the diagram below the image.
+```
+┌─────────────┐     ┌──────────────┐     ┌────────────────────┐
+│  Frontend   │────▶│   Gateway    │────▶│  Whisper (GPU)     │
+│  (Nginx)    │     │  (FastAPI)   │     │  Speech-to-Text    │
+│             │◀────│              │     │  vLLM Runtime      │
+└─────────────┘     └──────┬───────┘     └────────────────────┘
+                           │
+                           ▼
+                    ┌────────────────────┐
+                    │  M2M-100 (CPU/GPU) │
+                    │  Translation       │
+                    │  1.2B Parameters   │
+                    └────────────────────┘
+```
 
+## How It Works
+
+**1. Select Languages:** Choose your source language (what you'll speak) and target language (desired translation) from 100+ available options
+
+**2. Record Audio:** Click the microphone button to start recording
+   - Real-time waveform visualization shows your voice input
+   - Frontend captures audio in WebM format
+
+**3. Stop Recording:** Click the microphone button again to stop
+   - Audio is automatically sent to the Gateway service
+   - Frontend sends audio file to Gateway via `/translate-speech` endpoint
+
+**4. Speech Recognition:** Gateway forwards your audio to Whisper InferenceService
+   - Whisper Large-v3 running on GPU transcribes speech to text
+   - Processing time: 1-3 seconds on GPU
+
+**5. Translation:** Gateway sends transcribed text to M2M-100 Translation Service
+   - M2M-100 1.2B model translates text to target language
+   - Processing time: 3-8 seconds on CPU, 400-800ms on GPU. Dependent on size of translation.
+
+**6. View Results:** Translated text returns to frontend and appears in the main display
+   - Text is capitalized and formatted for readability
+   - Original transcription available via "Show Original Text" button
+
+**7. Text Alternative:** Prefer typing? Expand "Or type text to translate"
+   - Enter text directly and click "Translate Text"
+
+**Processing time:** ~4-11 seconds total for speech translation on CPU (Whisper on GPU + M2M-100 on CPU), ~2-4 seconds with GPU acceleration for M2M-100.
+
+**Supported languages:** 100 languages including English, Spanish, French, German, Italian, Portuguese, Russian, Japanese, Chinese, Arabic, Hindi, Korean, and 88+ more.
+
+## Use Cases
+
+### Global Organizations
+Real-time collaboration across multilingual teams without external translation services. Enable seamless communication between offices in different countries while maintaining data privacy with self-hosted infrastructure.
+
+### Education
+Support multilingual classrooms and international students with instant translation. Demonstrate AI speech processing and translation capabilities. Provide accessible communication tools for students with hearing or language barriers.
+
+### Healthcare Providers
+Facilitate patient communication across language barriers with HIPAA-compliant, self-hosted translation. No patient data leaves your infrastructure. Support emergency communication when interpreters aren't immediately available.
+
+### Government Services
+Provide multilingual constituent services and public interfaces. Enable international relations and diplomatic communications. Maintain data sovereignty with fully self-hosted translation infrastructure.
+
+### Customer Service
+Deliver multilingual support without relying on third-party APIs or cloud services. Maintain conversation privacy and compliance with data protection regulations. Support customers in 100+ languages with a single deployment.
 
 ## Requirements
 
-> _This section groups all prerequisites users need before deploying_
-
 ### Minimum hardware requirements
 
-> **CONTRIBUTOR TODO: add minimum hardware requirements**
->
-> This section is REQUIRED. Be SPECIFIC - don't say "GPU", say exactly which GPU.
->
-> **Include:**
-> - CPU: specify cores, requests, and limits
-> - Memory: specify GiB, requests, and limits  
-> - GPU: exact models (e.g., "NVIDIA A10, A100, L40S, or T4")
-> - Storage: if significant storage is needed
->
-> If your quickstart deploys a model, list the model's resource requirements separately.
->
-> **Example:**
->
-> **Application:**
-> - CPU: 2 vCPU (request) / 4 vCPU (limit)
-> - Memory: 4 GiB (request) / 8 GiB (limit)
->
-> **LLM (if deploying a model):**
-> - CPU: 4 vCPU (request) / 8 vCPU (limit)
-> - Memory: 16 GiB (request) / 32 GiB (limit)
-> - GPU: 1 NVIDIA GPU (A10, A100, L40S, T4, or similar)
->
-> > **Note**: If using MaaS (external model endpoint), GPU is not required.
+**Frontend:**
+- CPU: 100m vCPU (request) / 200m vCPU (limit)
+- Memory: 128 MiB (request) / 256 MiB (limit)
+
+**Gateway:**
+- CPU: 200m vCPU (request) / 500m vCPU (limit)
+- Memory: 256 MiB (request) / 512 MiB (limit)
+
+**M2M-100 Translation Service:**
+- CPU: 4 vCPU (request) / 6 vCPU (limit)
+- Memory: 8 GiB (request) / 12 GiB (limit)
+- GPU: Optional (recommended for faster translation, ~400-800ms vs 3-8s on CPU)
+
+**Whisper Speech-to-Text (if deploying via Helm):**
+- CPU: 2 vCPU (request) / 2 vCPU (limit)
+- Memory: 8 GiB (request) / 8 GiB (limit)
+- GPU: 1 NVIDIA GPU (A10, A100, L40S, T4, or similar)
+
+**Total minimum requirements:**
+- CPU: ~6.3 vCPU (without Whisper) or ~8.3 vCPU (with Whisper)
+- Memory: ~8.9 GiB (without Whisper) or ~16.9 GiB (with Whisper)
+- GPU: 1 NVIDIA GPU if deploying Whisper
+
+> **Note**: The Whisper InferenceService deployment is optional. You can deploy Whisper separately or use an existing deployment and configure the gateway to use it.
 
 ### Minimum software requirements
 
-> **CONTRIBUTOR TODO: add minimum software requirements**
->
-> This section is REQUIRED. Be SPECIFIC about versions.
->
-> **Include:**
-> - OpenShift version (e.g., "OpenShift 4.14 or later")
-> - OpenShift AI version (e.g., "OpenShift AI 2.22 or later")
-> - Other platform dependencies (operators, services)
-> - Client tools (oc CLI, helm, etc.)
->
-> **BAD:** "Requires OpenShift AI"  
-> **GOOD:** "Tested with OpenShift AI 2.22-2.25 on OpenShift 4.14+"
+**Tested with:**
+- OpenShift 4.22
+- OpenShift AI 3.4
+- Helm 3.12 or later
+- oc CLI 4.14 or later
+
+**Required operators:**
+- OpenShift AI operator
+
 
 ### Required user permissions
 
-> **CONTRIBUTOR TODO: add user permissions**
->
-> This section is REQUIRED. Be clear about what permissions are needed.
->
-> **Options:**
-> - Regular user with standard permissions (preferred!)
-> - Namespace admin
-> - Cluster admin (only if absolutely necessary - explain why)
->
-> **Example:**
->
-> This quickstart can be deployed by any user with:
-> - Permission to create projects/namespaces
-> - Permission to deploy applications via Helm
-> - No cluster admin access required
-
+This quickstart can be deployed by any user with:
+- Permission to create projects/namespaces
+- Permission to deploy applications via Helm
+- Permission to create InferenceServices (if deploying Whisper)
+- No cluster admin access required
 
 ## Deploy
 
-> _This section contains all deployment instructions_
-
 ### Prerequisites
 
-> **CONTRIBUTOR TODO: verify and update prerequisites**
->
-> List specific items users must have/do BEFORE running installation commands.
->
-> **Include:**
-> - Access to specific platforms/clusters
-> - CLI tools installed (with version requirements)
-> - Authentication/credentials needed
-> - Network access requirements
->
-> **Example:**
->
-> Before deploying, ensure you have:
-> - Access to a Red Hat OpenShift cluster with OpenShift AI 2.22+ installed
-> - `oc` CLI (version 4.14+) installed and authenticated
-> - `helm` CLI (version 3.12+) installed
-> - API key for your model endpoint (if using MaaS)
+Before deploying, ensure you have:
+- Access to a Red Hat OpenShift cluster with OpenShift AI 3.4+ installed
+- `oc` CLI (version 4.14+) installed and authenticated
+- `helm` CLI (version 3.12+) installed
+- At least one GPU-enabled node available (if deploying Whisper)
 
 ### Installation
 
-> **CONTRIBUTOR TODO: customize installation steps**
->
-> Provide STEP-BY-STEP instructions. Assume users have limited knowledge.
->
-> **Include:**
-> - Clear numbered steps
-> - Exact commands to run (users should be able to copy/paste)
-> - Explanation of what each major step does
-> - Any configuration choices users need to make
->
-> Test these steps yourself on a fresh environment to ensure they work!
->
-> **Key things to update:**
-> - Replace "my-quickstart" and "YOUR_QUICKSTART_NAME" with your actual names
-> - Add any additional --set flags specific to your quickstart
-> - If your quickstart requires a model, keep the model options section below
-> - If your quickstart does NOT require a model, remove the model options section below entirely
-
 1. Clone the repository:
 ```bash
-git clone https://github.com/rh-ai-quickstart/YOUR_QUICKSTART_NAME.git
-cd YOUR_QUICKSTART_NAME
+git clone https://github.com/rh-ai-quickstart/the-universal-translator.git
+cd the-universal-translator
 ```
 
 2. Create a new OpenShift project:
 ```bash
-PROJECT="my-quickstart"
-oc new-project ${PROJECT}
+oc new-project universal-translator
 ```
 
 3. Install using Helm:
 
-```bash
-helm install my-quickstart ./chart --namespace ${PROJECT}
-```
-
-#### If your quickstart requires a model
-
-**Option A: Use your own model (MaaS - Model as a Service)**
-
-If you have an existing model endpoint, provide the model name, endpoint, and API key:
-```bash
-helm install my-quickstart ./chart --namespace ${PROJECT} \
-  --set model.name=YOUR_MODEL_NAME \
-  --set model.endpoint=YOUR_MODEL_ENDPOINT \
-  --set model.api_key=YOUR_API_KEY
-```
-
-> **Note**: The `model.endpoint` should be the full URL including protocol and port if needed (e.g., `https://my-model.example.com` or `http://my-model:8080`).
-
-**Option B: Deploy with a model included in the chart**
-
-If you don't provide any model configuration, the chart will deploy a default model on your cluster:
-```bash
-helm install my-quickstart ./chart --namespace ${PROJECT}
-```
-
-> **Note**: Option B requires a GPU available in your cluster for the LLM deployment. See [Minimum hardware requirements](#minimum-hardware-requirements) for details. You must add your own model InferenceService template under `chart/templates/` for this option to work.
-
-#### Testing model access (before deploying)
-
-If you are bringing your own model (Option A), you can verify the endpoint is reachable **before** installing the chart:
+**Option A: Deploy with Whisper included (requires GPU)**
 
 ```bash
-oc run test-model-access --rm -it --restart=Never \
-  --image=registry.access.redhat.com/ubi9/ubi-minimal:latest \
-  -- /bin/sh -c 'curl -sf --max-time 10 \
-    -H "Authorization: Bearer YOUR_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d "{\"model\": \"YOUR_MODEL_NAME\", \"messages\": [{\"role\": \"user\", \"content\": \"Say hello in one word.\"}], \"max_tokens\": 10}" \
-    "YOUR_MODEL_ENDPOINT/v1/chat/completions" && echo "" && echo "SUCCESS" || echo "FAILED"'
+helm install universal-translator ./chart --namespace universal-translator
 ```
 
-Replace `YOUR_API_KEY`, `YOUR_MODEL_NAME`, and `YOUR_MODEL_ENDPOINT` with your actual values.
+This deploys all components including the Whisper InferenceService. Whisper will be scheduled on a GPU node.
+
+**Option B: Use existing Whisper deployment**
+
+If you already have Whisper deployed elsewhere, disable the InferenceService and point to your existing endpoint:
+
+```bash
+helm install universal-translator ./chart --namespace universal-translator \
+  --set whisper.enabled=false \
+  --set whisper.url="http://your-whisper-service:8080"
+```
 
 ### Validating the deployment
 
-> **CONTRIBUTOR TODO: add validation steps**
->
-> Tell users how to verify the deployment was successful.
->
-> **Include:**
-> - Commands to check pod status
-> - How to access the application (routes, URLs)
-> - How to verify functionality (e.g., "run helm test")
-> - Expected output/behavior
->
-> **Example:**
->
-> 1. Check all pods are running:
->    ```bash
->    oc get pods -n ${PROJECT}
->    ```
->    
-> 2. Get the application URL:
->    ```bash
->    echo https://$(oc get route/my-app -n ${PROJECT} --template='{{.spec.host}}')
->    ```
->    
-> 3. Test the endpoint is responding:
->    ```bash
->    curl -s https://$(oc get route/my-app -n ${PROJECT} --template='{{.spec.host}}')/health
->    ```
->
-> If your quickstart uses a model, you can run the included Helm test:
-> ```bash
-> helm test my-quickstart --namespace ${PROJECT}
-> ```
->
-> If your quickstart does not use a model, remove the helm test step and add your own validation steps.
+1. Check all pods are running:
+   ```bash
+   oc get pods -n universal-translator
+   ```
+   
+   You should see:
+   - `universal-translator-frontend-*` (Running)
+   - `translator-gateway-*` (Running)
+   - `m2m100-service-*` (Running)
+   - `whisper-large-v3-predictor-*` (Running, if deployed via Helm)
+
+2. Wait for M2M-100 to fully load (may take 3-5 minutes):
+   ```bash
+   oc logs -f deployment/m2m100-service -n universal-translator
+   ```
+   
+   Wait until you see: `Model loaded successfully!`
+
+3. Get the application URL:
+   ```bash
+   echo https://$(oc get route/universal-translator -n universal-translator --template='{{.spec.host}}')
+   ```
+
+4. Open the URL in your browser and test:
+   - Select source and target languages
+   - Click the microphone button and speak
+   - View the translation
+
+   Or use the text input option:
+   - Expand "Or type text to translate"
+   - Enter text and click "Translate Text"
 
 ### Delete
 
-> **CONTRIBUTOR TODO: verify deletion steps**
->
-> Provide clear instructions to cleanly remove the deployment.
->
-> **Include:**
-> - Command to uninstall via Helm
-> - Any manual cleanup needed (secrets, PVCs, etc.)
-> - How to verify complete removal
->
-> Users should be able to return their environment to pre-deployment state.
->
-> **Example:**
->
-> To completely remove the deployment:
->
-> 1. Uninstall the Helm release:
->    ```bash
->    helm uninstall my-quickstart --namespace ${PROJECT}
->    ```
->
-> 2. (Optional) Delete the project:
->    ```bash
->    oc delete project ${PROJECT}
->    ```
+To completely remove the deployment:
+
+1. Uninstall the Helm release:
+   ```bash
+   helm uninstall universal-translator --namespace universal-translator
+   ```
+
+2. (Optional) Delete the project:
+   ```bash
+   oc delete project universal-translator
+   ```
 
 ## Repository structure
 
-> **CONTRIBUTOR TODO: update the file tree**
->
-> Show the organization of your repository so contributors understand where things are.
->
-> Update this to reflect your actual structure - add application code directories, additional config folders, etc.
->
-> Keep it concise - don't list every single file, just the important directories and key files.
-
 ```
 .
-├── chart/                    # Helm chart for deploying the quickstart
-│   ├── Chart.yaml            # Chart metadata
-│   ├── values.yaml           # Default configuration values (model info, resources, etc.)
+├── chart/                    # Helm chart for deploying the Universal Translator
+│   ├── Chart.yaml            # Chart metadata (version 1.0.0)
+│   ├── values.yaml           # Configuration (Whisper toggle, service URLs)
 │   └── templates/            # Kubernetes resource templates
-│       ├── test-model-access.yaml  # Helm test for verifying model connectivity
-│       └── ...               # Add your templates here (deployments, services, etc.)
+│       ├── whisper-inferenceservice.yaml  # KServe InferenceService for Whisper
+│       ├── frontend.yaml     # Nginx frontend (Deployment + Service + Route)
+│       ├── gateway.yaml      # FastAPI gateway (Deployment + Service)
+│       └── m2m100.yaml       # M2M-100 translation (Deployment + Service)
 ├── docs/
 │   └── images/               # Architecture diagrams and screenshots
 └── README.md
 ```
 
-> **EXAMPLE:** If your quickstart includes application source code (e.g., a web UI, API server), add it as a sibling directory to chart/. For example:
-> ```
-> ├── my-app/                 # Application source code
-> │   ├── app.py
-> │   ├── Containerfile
-> │   └── requirements.txt
-> ```
 
 ## References
 
-> **CONTRIBUTOR TODO: add relevant links**
->
-> This section is RECOMMENDED but optional.
->
-> **Include links to:**
-> - Official documentation for technologies used
-> - Blog posts or articles about the use case
-> - Research papers or whitepapers
-> - Related quickstarts or examples
-> - Partner/vendor documentation
->
-> **Example:**
-> - [OpenShift AI Documentation](https://docs.redhat.com/en/openshift-ai)
-> - [LangChain Documentation](https://langchain.com/docs)
-> - [Blog: Building HIPAA-Compliant AI Applications](https://example.com/blog)
->
-> _Remove this section entirely if you have no references to add._
+- [OpenAI Whisper - Speech Recognition Model](https://github.com/openai/whisper)
+- [Meta M2M-100 - Multilingual Translation](https://huggingface.co/facebook/m2m100_1.2B)
+- [OpenShift AI Documentation](https://docs.redhat.com/en/openshift-ai)
+- [KServe Documentation](https://kserve.github.io/website/)
+- [vLLM Serving Engine](https://github.com/vllm-project/vllm)
 
 ## Technical details
 
-> **CONTRIBUTOR TODO: add technical deep dive**
->
-> This section is OPTIONAL.
->
-> **Use this for:**
-> - How the components work together technically
-> - Implementation details developers would want to know
-> - Model details (size, quantization, context window)
-> - API endpoints and integration points
-> - Performance characteristics
->
-> This is where technical depth goes - the earlier sections focus on the use case.
->
-> _Remove this section if not needed._
+### Models Used
+
+**Whisper Large-v3**
+- Architecture: Transformer-based speech recognition
+- Size: ~3 GB
+- Languages: 99+
+- Deployment: vLLM runtime on KServe
+- Storage: Red Hat modelcar catalog (OCI registry)
+- Performance: 1-3 seconds per audio clip on GPU
+
+**M2M-100 1.2B**
+- Architecture: Multilingual translation transformer
+- Parameters: 1.2 billion
+- Size: ~5 GB
+- Languages: 100 languages, 9,900 translation pairs
+- Deployment: FastAPI service with HuggingFace transformers
+- Performance: 3-8 seconds on CPU, 400-800ms on GPU
+
+### API Endpoints
+
+**Gateway Service** (`http://translator-gateway:8000`)
+- `POST /translate-speech` - Upload audio file for transcription + translation
+  - Form data: `audio` (file), `source_lang` (code), `target_lang` (code)
+  - Returns: `{original_text, translated_text, source_language, target_language}`
+  
+- `POST /translate-text` - Text-only translation (bypasses Whisper)
+  - JSON: `{text, source_lang, target_lang}`
+  - Returns: `{original_text, translated_text, source_language, target_language}`
+
+
+**M2M-100 Service** (`http://m2m100-service:8000`)
+- `POST /translate` - Direct translation
+  - JSON: `{text, source_language, target_language}`
+  - Returns: `{translated_text}`
+
+- `GET /languages` - List supported language codes
+
+**Whisper Service** (`http://whisper-large-v3-predictor:8080`)
+- `POST /v1/audio/transcriptions` - OpenAI-compatible transcription
+  - Form data: `file` (audio)
+  - Returns: `{text}`
+
+### Configuration
+
+The Helm chart exposes minimal configuration via `values.yaml`:
+
+```yaml
+whisper:
+  enabled: true  # Deploy Whisper InferenceService
+  url: "http://whisper-large-v3-predictor.universal-translator.svc.cluster.local:8080"
+```
+
+
+### Resource Optimization
+
+- **CPU-only deployment**: Works but translation is slower (3-8s vs 400-800ms on GPU)
+- **GPU acceleration**: Whisper requires GPU; M2M-100 benefits from GPU but not required
+- **Smaller model option**: Can use M2M-100 418M instead of 1.2B for faster CPU performance at slightly lower quality
+
+
+## Credits
+
+**Built by:** Red Hat CAI Team  
+**Powered by:** Red Hat OpenShift AI  
+**Models:** Whisper by OpenAI, M2M-100 by Meta AI   
+**Base Images:** Red Hat Universal Base Image 9 (UBI9)  
+**Maintained by:** Sara Banderby
 
 ## Tags
 
-> **CONTRIBUTOR TODO: add metadata and tags for publication**
->
-> Tags are REQUIRED for publication to redhat.com catalog.
->
-> **Fill in:**
-> - **Title:** (must match H1 heading, max 64 chars)
-> - **Description:** (must match short description, max 160 chars)
-> - **Industry:** ONE from the list in CONTRIBUTING.md (e.g., Healthcare, Retail, Financial Services)
-> - **Product:** Primary Red Hat product (e.g., OpenShift AI, OpenShift, RHEL)
-> - **Use case:** Optional descriptor (e.g., security, automation, productivity)
-> - **Partner:** Optional, list partners if applicable (e.g., NVIDIA, Intel)
-> - **Contributor org:** Defaults to "Red Hat" unless partner or community contribution
->
-> **Example:**
->
-> **Title:** Protect patient data with LLM guardrails  
-> **Description:** Deploy HIPAA-compliant AI assistants for healthcare with built-in data protection and audit logging  
-> **Industry:** Healthcare provider  
-> **Product:** OpenShift AI  
-> **Use case:** Security, compliance  
-> **Partner:** N/A  
-> **Contributor org:** Red Hat
+- **Title:** Translate speech across 100+ languages with AI
+- **Industry:** Education
+- **Use case:** Translation, Communication, Accessibility
+- **Contributor org:** Red Hat

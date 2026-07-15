@@ -1,0 +1,36 @@
+{{- if .Values.whisper.enabled }}
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: whisper-large-v3
+  annotations:
+    modelFormat: vLLM
+    security.opendatahub.io/enable-auth: 'false'
+    openshift.io/display-name: whisper-large-v3
+    serving.kserve.io/deploymentMode: Standard
+    opendatahub.io/model-type: generative
+spec:
+  predictor:
+    automountServiceAccountToken: false
+    deploymentStrategy:
+      type: RollingUpdate
+    maxReplicas: 1
+    minReplicas: 1
+    model:
+      modelFormat:
+        name: vLLM
+      name: ''
+      resources:
+        limits:
+          cpu: "2"
+          memory: 8Gi
+          nvidia.com/gpu: "1"
+        requests:
+          cpu: "2"
+          memory: 8Gi
+          nvidia.com/gpu: "1"
+      runtime: whisper-large-v3
+      storageUri: "oci://quay.io/redhat-ai-services/modelcar-catalog:whisper-large-v3"
+    timeout: 300
+{{- end }}
