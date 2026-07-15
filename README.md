@@ -167,7 +167,7 @@ Before deploying, ensure you have:
 - Access to a Red Hat OpenShift cluster with OpenShift AI 3.4+ installed
 - `oc` CLI (version 4.14+) installed and authenticated
 - `helm` CLI (version 3.12+) installed
-- At least one GPU-enabled node available (if deploying Whisper)
+- At least one GPU-enabled node available, a NVIDIA A10 GPU would suffice (if deploying Whisper)
 
 ### Installation
 
