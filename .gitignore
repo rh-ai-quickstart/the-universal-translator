@@ -1,0 +1,14 @@
+# Helm
+*.tgz
+chart/values-*.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: m2m100-service
+  labels:
+    app: m2m100-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: m2m100-service
+  template:
+    metadata:
+      labels:
+        app: m2m100-service
+    spec:
+      containers:
+      - name: m2m100
+        image: quay.io/sara_banderby/translator:m2m100-1.2b-service
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+        env:
+        - name: MODEL_PATH
+          value: "/app/model"
+        resources:
+          requests:
+            memory: 8Gi
+            cpu: 4000m
+          limits:
+            memory: 12Gi
+            cpu: 6000m
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 300
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 240
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: m2m100-service
+  labels:
+    app: m2m100-service
+spec:
+  type: ClusterIP
+  selector:
+    app: m2m100-service
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
